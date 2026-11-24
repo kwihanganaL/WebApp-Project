@@ -2,11 +2,15 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'NodeJS20'
+    }
+
     stages {
 
         stage('Checkout') {
             steps {
-                echo 'Checking out CODERWANDA project'
+                echo 'Checking out WebApp Project'
 
                 git branch: 'main',
                     url: 'https://github.com/kwihanganaL/WebApp-Project.git'
@@ -36,16 +40,20 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t coderwanda-app:latest .'
+                sh 'docker build -t webapp:1.0 .'
             }
         }
 
-        stage('Run Docker Container') {
+        stage('Deploy with Docker') {
             steps {
                 sh '''
-                    docker stop coderwanda-container || true
-                    docker rm coderwanda-container || true
-                    docker run -d --name coderwanda-container -p 3000:3000 coderwanda-app:latest
+                    docker stop webapp-container || true
+                    docker rm webapp-container || true
+
+                    docker run -d \
+                        --name webapp-container \
+                        -p 3000:3000 \
+                        webapp:1.0
                 '''
             }
         }
@@ -54,6 +62,7 @@ pipeline {
     post {
         success {
             echo 'Pipeline completed successfully!'
+            echo 'WebApp Project deployed successfully using Docker!'
         }
 
         failure {

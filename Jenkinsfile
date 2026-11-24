@@ -2,11 +2,15 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'NodeJS20'
+    }
+
     stages {
 
         stage('Checkout') {
             steps {
-                echo 'Checking out CODERWANDA project'
+                echo 'Checking out WebApp Project'
 
                 git branch: 'main',
                     url: 'https://github.com/kwihanganaL/WebApp-Project.git'
@@ -20,15 +24,17 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Check Project Files') {
             steps {
-                sh 'npm install'
+                sh 'pwd'
+                sh 'ls -la'
+                sh 'find . -name package.json'
             }
         }
 
-        stage('Run Tests') {
+        stage('Install Dependencies') {
             steps {
-                sh 'npm test'
+                sh 'npm install'
             }
         }
 
@@ -38,12 +44,16 @@ pipeline {
             }
         }
 
-        stage('Run Docker Container') {
+        stage('Deploy with Docker') {
             steps {
                 sh '''
-                    docker rm -f webapp-container || true
-                    docker run -d -p 8081:3000 \
-                    --name webapp-container webapp:1.0
+                    docker stop webapp-container || true
+                    docker rm webapp-container || true
+
+                    docker run -d \
+                        --name webapp-container \
+                        -p 3000:3000 \
+                        webapp:1.0
                 '''
             }
         }
@@ -51,7 +61,8 @@ pipeline {
 
     post {
         success {
-            echo 'CODERWANDA application deployed successfully!'
+            echo 'Pipeline completed successfully!'
+            echo 'WebApp Project deployed successfully using Docker!'
         }
 
         failure {

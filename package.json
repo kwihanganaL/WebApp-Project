@@ -1,0 +1,10 @@
+{
+  "name": "webapp",
+  "version": "1.0.0",
+  "description": "CODERWANDA Web Application",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --test"
+  }
+}

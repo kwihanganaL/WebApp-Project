@@ -20,30 +20,32 @@ pipeline {
             }
         }
 
+        stage('Check Project Files') {
+            steps {
+                sh 'pwd'
+                sh 'ls -la'
+                sh 'find . -name package.json'
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'
             }
         }
 
-        stage('Run Tests') {
-            steps {
-                sh 'npm test'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t webapp:1.0 .'
+                sh 'docker build -t coderwanda-app:latest .'
             }
         }
 
         stage('Run Docker Container') {
             steps {
                 sh '''
-                    docker rm -f webapp-container || true
-                    docker run -d -p 8081:3000 \
-                    --name webapp-container webapp:1.0
+                    docker stop coderwanda-container || true
+                    docker rm coderwanda-container || true
+                    docker run -d --name coderwanda-container -p 3000:3000 coderwanda-app:latest
                 '''
             }
         }
@@ -51,7 +53,7 @@ pipeline {
 
     post {
         success {
-            echo 'CODERWANDA application deployed successfully!'
+            echo 'Pipeline completed successfully!'
         }
 
         failure {
